@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "license": "MIT",
-  "author": "",
+  "author": "Marius P.",
   "scripts": {
     "build": "parcel build index.html",
     "dev": "parcel index.html --open",
