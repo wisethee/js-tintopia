@@ -194,4 +194,22 @@ document.addEventListener("DOMContentLoaded", () => {
       all: [...lightColors, ...baseColors, ...darkColors],
     };
   }
+
+  // Call the function with the provided palette
+  const palette = generateRandomColorRamp({
+    total: 13,
+    centerHue: 0,
+    hueCycle: 0.1,
+    curveMethod: "lame",
+    curveAccent: 0.009,
+    offsetTint: 0,
+    offsetShade: 0,
+    tintShadeHueShift: 0,
+    offsetCurveModTint: 0.036,
+    offsetCurveModShade: 0.036,
+    minSaturationLight: [0, 0.09],
+    maxSaturationLight: [1, 1],
+  });
+
+  console.log(palette);
 });
