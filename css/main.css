@@ -1,0 +1,20 @@
+main {
+  display: flex;
+  flex-direction: column;
+}
+
+.base-wrapper,
+.light-wrapper,
+.dark-wrapper {
+  display: flex;
+}
+
+.base-wrapper span,
+.light-wrapper span,
+.dark-wrapper span {
+  cursor: pointer;
+}
+
+.copied {
+  background-color: #f6f6f6 !important;
+}

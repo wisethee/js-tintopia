@@ -24,6 +24,53 @@ document.addEventListener("DOMContentLoaded", () => {
   const hsv2hsx = (hue, saturation, value, mode) =>
     mode === "hsl" ? hsv2hsl(hue, saturation, value) : [hue, saturation, value];
 
+  const hslToHex = (hue, saturation, lightness) => {
+    hue /= 360;
+    saturation /= 100;
+    lightness /= 100;
+
+    let red, green, blue;
+
+    if (saturation === 0) {
+      red = green = blue = lightness; // achromatic
+    } else {
+      const calculateComponent = (primary, secondary, temporary) => {
+        if (temporary < 0) temporary += 1;
+        if (temporary > 1) temporary -= 1;
+        if (temporary < 1 / 6)
+          return primary + (secondary - primary) * 6 * temporary;
+        if (temporary < 1 / 2) return secondary;
+        if (temporary < 2 / 3)
+          return primary + (secondary - primary) * (2 / 3 - temporary) * 6;
+        return primary;
+      };
+
+      const secondaryComponent =
+        lightness < 0.5
+          ? lightness * (1 + saturation)
+          : lightness + saturation - lightness * saturation;
+      const primaryComponent = 2 * lightness - secondaryComponent;
+      red = calculateComponent(
+        primaryComponent,
+        secondaryComponent,
+        hue + 1 / 3
+      );
+      green = calculateComponent(primaryComponent, secondaryComponent, hue);
+      blue = calculateComponent(
+        primaryComponent,
+        secondaryComponent,
+        hue - 1 / 3
+      );
+    }
+
+    const toHex = (component) => {
+      const hex = Math.round(component * 255).toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    };
+
+    return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+  };
+
   /**
    * function pointOnCurve
    * @param   {String} curveMethod  Defines how the curve is drawn
@@ -196,12 +243,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Call the function with the provided palette
-  const palette = generateRandomColorRamp({
+  const colorPaletteRamp = generateRandomColorRamp({
     total: 13,
-    centerHue: 0,
-    hueCycle: 0.1,
+    centerHue: 27,
+    hueCycle: 0, // 0.1
     curveMethod: "lame",
-    curveAccent: 0.009,
+    curveAccent: 0.03,
     offsetTint: 0,
     offsetShade: 0,
     tintShadeHueShift: 0,
@@ -211,5 +258,94 @@ document.addEventListener("DOMContentLoaded", () => {
     maxSaturationLight: [1, 1],
   });
 
-  console.log(palette);
+  const neutralPaletteRamp = generateRandomColorRamp({
+    total: 16,
+    centerHue: 27,
+    hueCycle: 0,
+    curveMethod: "lame",
+    curveAccent: 0,
+    offsetTint: 0,
+    offsetShade: 0,
+    tintShadeHueShift: 0.01,
+    offsetCurveModTint: 0.03,
+    offsetCurveModShade: 0.01,
+    minSaturationLight: [0, 0],
+    maxSaturationLight: [0.228, 1],
+  });
+
+  const colorPaletteModified = (palette) => {
+    let { light } = colorPaletteRamp;
+    const lastElement = light.at(-1);
+    const [hue] = lastElement;
+
+    const tonalValues = [
+      [hue, 1.0, 0.9],
+      [hue, 1.0, 0.95],
+      [hue, 1.0, 0.98],
+      [hue, 1.0, 1.0],
+    ];
+
+    tonalValues.forEach((tonalValue) => light.push(tonalValue));
+    // light.unshift([hue, 0.0, 0.0]);
+
+    return colorPaletteRamp;
+  };
+
+  const colorPalette = colorPaletteModified();
+  const neutralPalette = neutralPaletteRamp;
+
+  /**
+   * Display the color palette
+   */
+  const main = document.querySelector("main");
+
+  const buildColorElement = (color) => {
+    const span = document.createElement("span");
+
+    const [hue, saturation, lightness] = color;
+    span.style.width = "48px";
+    span.style.height = "48px";
+    const hexColor = hslToHex(hue, saturation * 100, lightness * 100);
+    span.style.setProperty("background-color", hexColor);
+
+    span.addEventListener("click", () => {
+      navigator.clipboard
+        .writeText(hexColor)
+        .then(() => {
+          console.log("Color copied to clipboard:", hexColor);
+          span.classList.add("copied");
+          // You can display a success message or perform additional actions here
+        })
+        .catch((err) => {
+          console.error("Failed to copy color to clipboard:", err);
+          // You can display an error message or handle the error in an appropriate way
+        });
+    });
+
+    return span;
+  };
+
+  const buildColorPalette = (colorPalette, className) => {
+    const baseWrapper = document.createElement("div");
+    baseWrapper.classList.add(`${className}`);
+
+    colorPalette.forEach((color) => {
+      const span = buildColorElement(color);
+      baseWrapper.appendChild(span);
+    });
+
+    return baseWrapper;
+  };
+
+  const lightPalette = buildColorPalette(colorPalette.light, "light-wrapper");
+  const neutralLightPalette = buildColorPalette(
+    neutralPalette.light,
+    "light-wrapper"
+  );
+  // const basePalette = buildColorPalette(colorPalette.base, "base-wrapper");
+  // const darkPalette = buildColorPalette(colorPalette.dark, "dark-wrapper");
+  main.appendChild(lightPalette);
+  main.appendChild(neutralLightPalette);
+  // main.appendChild(basePalette);
+  // main.appendChild(darkPalette);
 });
