@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Call the function with the provided palette
   const colorPaletteRamp = generateRandomColorRamp({
     total: 13,
-    centerHue: 27,
+    centerHue: 0,
     hueCycle: 0, // 0.1
     curveMethod: "lame",
     curveAccent: 0.03,
@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const neutralPaletteRamp = generateRandomColorRamp({
     total: 16,
-    centerHue: 27,
+    centerHue: 0,
     hueCycle: 0,
     curveMethod: "lame",
     curveAccent: 0,
@@ -274,9 +274,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const colorPaletteModified = (palette) => {
-    let { light } = colorPaletteRamp;
+    let { light, dark } = colorPaletteRamp;
     const lastElement = light.at(-1);
-    const [hue] = lastElement;
+    const [hue, saturation] = lastElement;
 
     const tonalValues = [
       [hue, 1.0, 0.9],
@@ -286,7 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     tonalValues.forEach((tonalValue) => light.push(tonalValue));
-    // light.unshift([hue, 0.0, 0.0]);
 
     return colorPaletteRamp;
   };
@@ -342,10 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
     neutralPalette.light,
     "light-wrapper"
   );
-  // const basePalette = buildColorPalette(colorPalette.base, "base-wrapper");
-  // const darkPalette = buildColorPalette(colorPalette.dark, "dark-wrapper");
+  const basePalette = buildColorPalette(colorPalette.base, "base-wrapper");
+  const darkPalette = buildColorPalette(colorPalette.dark, "dark-wrapper");
   main.appendChild(lightPalette);
-  main.appendChild(neutralLightPalette);
   // main.appendChild(basePalette);
   // main.appendChild(darkPalette);
+  main.appendChild(neutralLightPalette);
 });
