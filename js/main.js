@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * @returns {Object}                       Object containing the color ramp
    */
   function generateRandomColorRamp({
-    total = 3,
+    total = 198,
     centerHue = 0,
     hueCycle = 0.3,
     offsetTint = 0.1,
